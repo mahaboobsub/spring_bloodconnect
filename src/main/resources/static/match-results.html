@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Matches — BloodConnect</title>
+    <meta name="description" content="View matching eligible donors for your blood request.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        blood: {
+                            50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca',
+                            300: '#fca5a5', 400: '#f87171', 500: '#ef4444',
+                            600: '#dc2626', 700: '#b91c1c', 800: '#991b1b',
+                            900: '#7f1d1d', 950: '#450a0a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-glow:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3); }
+    </style>
+</head>
+<body class="font-sans bg-gray-950 text-white min-h-screen relative overflow-x-hidden">
+
+    <!-- Background decorations -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-10 right-10 w-96 h-96 bg-blood-600/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute bottom-10 left-10 w-96 h-96 bg-blood-800/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <nav class="relative z-10 glass border-b border-white/10 py-4 px-6 md:px-12 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-blood-500 to-blood-700 rounded-xl flex items-center justify-center shadow-lg shadow-blood-500/20">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            <div>
+                <span class="font-bold text-lg tracking-wide bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">BloodConnect</span>
+                <span class="text-[10px] text-blood-400 font-semibold uppercase tracking-wider block leading-none">Matches</span>
+            </div>
+        </div>
+        <div>
+            <a href="requester-dashboard.html" id="back-dashboard-btn"
+               class="px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200">
+                Back to Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 max-w-5xl mx-auto px-4 py-8 md:py-12">
+
+        <div id="flash-container"></div>
+
+        <!-- Request details summary card -->
+        <div class="glass rounded-2xl p-6 shadow-xl border border-white/5 mb-8" id="request-summary-card">
+            <!-- Populated dynamically -->
+            <span class="text-xs text-gray-500">Loading blood request summary...</span>
+        </div>
+
+        <!-- Matches Listing -->
+        <h3 class="text-lg font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6 flex items-center gap-2">
+            <span>🩸</span> Compatible Match Results
+        </h3>
+
+        <div id="matches-container">
+            <span class="text-xs text-gray-500">Loading compatible matches...</span>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 glass border-t border-white/5 py-8 mt-16 text-center text-gray-500 text-xs">
+        <p>&copy; 2026 BloodConnect. All rights reserved.</p>
+        <p class="mt-1 text-gray-600">Saving lives, one match at a time.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestId = urlParams.get('requestId');
+            const flashContainer = document.getElementById('flash-container');
+            const requestSummaryCard = document.getElementById('request-summary-card');
+            const matchesContainer = document.getElementById('matches-container');
+
+            if (!requestId) {
+                window.location.href = 'requester-dashboard.html';
+                return;
+            }
+
+            function showFlashMessage(message, isError = false) {
+                const bgClass = isError ? 'bg-red-500/10 border-red-500/30 text-red-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300';
+                const typeIcon = isError ? '⚠' : '✓';
+                flashContainer.innerHTML = `
+                    <div class="${bgClass} border px-5 py-4 rounded-2xl mb-8 flex items-center justify-between text-sm shadow-xl" id="alert-box">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">${typeIcon}</span>
+                            <span>${message}</span>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white transition-colors">✕</button>
+                    </div>
+                `;
+            }
+
+            function loadMatches() {
+                fetch(`match/find?requestId=${requestId}`)
+                    .then(res => {
+                        if (res.status === 401) {
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        if (res.status === 403) {
+                            window.location.href = 'requester-dashboard.html?error=unauthorized';
+                            return;
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (!data) return;
+
+                        if (data.success) {
+                            // 1. Request details summary card
+                            const isVerified = data.bloodRequest.isVerified;
+                            const verifyBadge = isVerified
+                                ? `<div class="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-bold flex items-center gap-2" id="verification-status-badge">
+                                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Verified by Admin
+                                   </div>`
+                                : `<div class="px-4 py-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs font-bold flex items-center gap-2" id="verification-status-badge">
+                                     <span class="w-2 h-2 rounded-full bg-amber-400"></span> Verification Pending
+                                   </div>`;
+
+                            const maskingBanner = isVerified
+                                ? `<div class="mt-5 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 rounded-xl text-xs leading-relaxed flex gap-3">
+                                     <span class="text-lg leading-none">🔓</span>
+                                     <p>
+                                         <strong>Contact reveal approved.</strong> Admin has verified this request. You can now view the full phone numbers of compatible donors and contact them directly.
+                                     </p>
+                                   </div>`
+                                : `<div class="mt-5 p-4 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-xl text-xs leading-relaxed flex gap-3">
+                                     <span class="text-lg leading-none">🔒</span>
+                                     <p>
+                                         <strong>Phone numbers are currently masked.</strong> To prevent exposure, contact details are hidden until an admin reviews and verifies this request. Once verified, donor phone numbers will be automatically revealed.
+                                     </p>
+                                   </div>`;
+
+                            requestSummaryCard.innerHTML = `
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-white/5">
+                                    <div>
+                                        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider block">Blood Request Info</span>
+                                        <h2 class="text-xl font-bold text-gray-100 mt-1">
+                                            Patient: ${data.bloodRequest.patientName}
+                                        </h2>
+                                    </div>
+                                    ${verifyBadge}
+                                </div>
+
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                                    <div class="bg-white/5 rounded-xl p-3">
+                                        <span class="text-gray-500 block">Blood Group</span>
+                                        <span class="text-sm font-bold text-white mt-0.5">${data.bloodRequest.bloodGroupNeeded}</span>
+                                    </div>
+                                    <div class="bg-white/5 rounded-xl p-3">
+                                        <span class="text-gray-500 block">Units Required</span>
+                                        <span class="text-sm font-bold text-white mt-0.5">${data.bloodRequest.unitsRequired}</span>
+                                    </div>
+                                    <div class="bg-white/5 rounded-xl p-3">
+                                        <span class="text-gray-500 block">Hospital</span>
+                                        <span class="text-sm font-bold text-white mt-0.5 truncate block">${data.bloodRequest.hospitalName}</span>
+                                    </div>
+                                    <div class="bg-white/5 rounded-xl p-3">
+                                        <span class="text-gray-500 block">City</span>
+                                        <span class="text-sm font-bold text-white mt-0.5">${data.bloodRequest.city}</span>
+                                    </div>
+                                </div>
+                                ${maskingBanner}
+                            `;
+
+                            // 2. Matches grid
+                            if (!data.matches || data.matches.length === 0) {
+                                matchesContainer.innerHTML = `
+                                    <div class="glass rounded-2xl p-12 text-center border border-white/5 shadow-2xl">
+                                        <div class="text-5xl mb-4">🔍</div>
+                                        <h4 class="font-bold text-gray-300">Searching for Donors</h4>
+                                        <p class="text-gray-500 text-xs mt-2 max-w-md mx-auto">
+                                            No available donors with blood group <strong class="text-white">${data.bloodRequest.bloodGroupNeeded}</strong> in <strong class="text-white">${data.bloodRequest.city}</strong> match this request. 
+                                            Donors will be automatically matched if they register or update their location.
+                                        </p>
+                                    </div>
+                                `;
+                            } else {
+                                let gridHtml = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="matches-grid">';
+                                data.matches.forEach(match => {
+                                    let statusBadge = '';
+                                    if (match.status === 'ACCEPTED') {
+                                        statusBadge = `<span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" id="status-badge-${match.matchId}">Accepted</span>`;
+                                    } else if (match.status === 'DECLINED') {
+                                        statusBadge = `<span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30" id="status-badge-${match.matchId}">Declined</span>`;
+                                    } else {
+                                        statusBadge = `<span class="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-gray-500/20 text-gray-400 border border-gray-500/30" id="status-badge-${match.matchId}">Pending Donor Response</span>`;
+                                    }
+
+                                    let contactDisplay = '';
+                                    if (match.status === 'DECLINED') {
+                                        contactDisplay = '<span class="text-red-400 italic font-normal text-xs">Unavailable (Declined)</span>';
+                                    } else {
+                                        contactDisplay = match.donorPhone;
+                                    }
+
+                                    let callActionBtn = '';
+                                    if (match.status !== 'DECLINED' && isVerified) {
+                                        callActionBtn = `
+                                            <a href="tel:${match.donorPhone}" id="call-btn-${match.matchId}"
+                                               class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-semibold rounded-xl text-xs transition-all duration-200">
+                                                Call Donor
+                                            </a>
+                                        `;
+                                    }
+
+                                    gridHtml += `
+                                        <div class="glass rounded-2xl p-6 border border-white/5 hover:border-white/10 shadow-xl transition-all duration-300 flex flex-col justify-between">
+                                            <div class="space-y-4">
+                                                <div class="flex items-center justify-between gap-3">
+                                                    <h4 class="font-bold text-base text-gray-200" id="donor-name-${match.matchId}">
+                                                        ${match.donorName}
+                                                    </h4>
+                                                    ${statusBadge}
+                                                </div>
+
+                                                <div class="grid grid-cols-2 gap-x-4 gap-y-2 py-3 border-y border-white/5 text-xs text-gray-400">
+                                                    <div>Blood Group: <span class="font-bold text-white">${match.donorBloodGroup}</span></div>
+                                                    <div>City: <span class="font-bold text-white">${match.donorCity}</span></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-5 pt-3 flex items-center justify-between text-xs">
+                                                <div class="flex flex-col">
+                                                    <span class="text-[10px] text-gray-500 uppercase font-semibold">Contact Phone</span>
+                                                    <span class="font-bold text-white tracking-wider text-sm mt-0.5" id="phone-${match.matchId}">
+                                                        ${contactDisplay}
+                                                    </span>
+                                                </div>
+                                                ${callActionBtn}
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                gridHtml += '</div>';
+                                matchesContainer.innerHTML = gridHtml;
+                            }
+                        } else {
+                            showFlashMessage(data.message || 'Error loading matches data.', true);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching matches:', err);
+                        showFlashMessage('Failed to communicate with server.', true);
+                    });
+            }
+
+            loadMatches();
+        });
+    </script>
+</body>
+</html>

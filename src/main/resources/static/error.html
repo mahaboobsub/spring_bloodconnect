@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error — BloodConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        blood: {
+                            50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca',
+                            300: '#fca5a5', 400: '#f87171', 500: '#ef4444',
+                            600: '#dc2626', 700: '#b91c1c', 800: '#991b1b',
+                            900: '#7f1d1d', 950: '#450a0a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="font-sans bg-gray-950 text-white min-h-screen flex items-center justify-center relative overflow-y-auto py-10">
+
+    <!-- Background decorations -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-blood-600/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-blood-800/20 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-md px-6 text-center">
+        <!-- Icon -->
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-blood-600/10 border border-blood-500/30 text-blood-400 rounded-3xl mb-6 shadow-lg animate-float">
+            <span class="text-4xl">⚠️</span>
+        </div>
+
+        <h1 class="text-3xl font-extrabold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent mb-3">Something Went Wrong</h1>
+        <p class="text-gray-400 text-sm mb-8 max-w-xs mx-auto">
+            An unexpected error occurred on the server. Please try again or return to safety.
+        </p>
+
+        <!-- Actions -->
+        <div class="space-y-3">
+            <a href="index.html" id="home-link"
+               class="block w-full py-3 bg-gradient-to-r from-blood-600 to-blood-700 hover:from-blood-500 hover:to-blood-600 text-white font-semibold rounded-xl shadow-lg shadow-blood-600/30 hover:shadow-blood-500/40 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] text-sm">
+                Return to Home
+            </a>
+            <button onclick="window.history.back()"
+                    class="block w-full py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 font-semibold rounded-xl text-sm transition-all duration-200">
+                Go Back
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-gray-600 text-xs mt-12">&copy; 2026 BloodConnect. All rights reserved.</p>
+    </div>
+
+</body>
+</html>

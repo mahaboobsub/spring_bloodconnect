@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloodConnect — Save Lives, Connect Donors</title>
+    <meta name="description" content="BloodConnect connects blood donors with patients and hospitals in real-time.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        blood: {
+                            50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca',
+                            300: '#fca5a5', 400: '#f87171', 500: '#ef4444',
+                            600: '#dc2626', 700: '#b91c1c', 800: '#991b1b',
+                            900: '#7f1d1d', 950: '#450a0a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="font-sans bg-gray-950 text-white min-h-screen relative overflow-x-hidden flex flex-col justify-between">
+
+    <!-- Background decorations -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-10 right-10 w-[500px] h-[500px] bg-blood-600/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute bottom-10 left-10 w-[500px] h-[500px] bg-blood-800/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <nav class="relative z-10 glass border-b border-white/10 py-4 px-6 md:px-12 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-blood-500 to-blood-700 rounded-xl flex items-center justify-center shadow-lg shadow-blood-500/20">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            <div>
+                <span class="font-bold text-lg tracking-wide bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">BloodConnect</span>
+                <span class="text-[10px] text-blood-400 font-semibold uppercase tracking-wider block leading-none">Saving Lives</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4" id="nav-actions">
+            <!-- Loading state -->
+            <span class="text-xs text-gray-500">Loading...</span>
+        </div>
+    </nav>
+
+    <!-- Main Content (Hero Section) -->
+    <main class="relative z-10 max-w-6xl mx-auto px-6 py-12 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center flex-grow">
+        
+        <!-- Left Side: Content & CTAs -->
+        <div class="space-y-6">
+            <span class="px-3 py-1 rounded-full bg-blood-500/10 border border-blood-500/20 text-blood-400 text-xs font-semibold tracking-wider uppercase inline-block">
+                🩸 Dedicated Donation & Matching Portal
+            </span>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                Save a Life, <br>
+                <span class="bg-gradient-to-r from-blood-400 to-blood-600 bg-clip-text text-transparent">Connect Instantly.</span>
+            </h1>
+            <p class="text-gray-400 text-sm md:text-base max-w-lg leading-relaxed">
+                BloodConnect automates the matching process between patient requests and eligible donors. Our secure administrative verification layer ensures donor privacy until urgent cases are validated.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4" id="cta-container">
+                <a href="register.html" id="cta-donor"
+                   class="px-6 py-3 bg-gradient-to-r from-blood-600 to-blood-700 hover:from-blood-500 hover:to-blood-600 text-center text-white font-semibold rounded-xl shadow-lg shadow-blood-600/30 hover:shadow-blood-500/40 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] text-sm">
+                    Register as Donor
+                </a>
+                <a href="register.html?role=REQUESTER" id="cta-requester"
+                   class="px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-center text-gray-200 font-semibold rounded-xl text-sm transition-all duration-200">
+                    Request Blood Supply
+                </a>
+            </div>
+        </div>
+
+        <!-- Right Side: Graphic Dashboard Preview Card -->
+        <div class="glass rounded-3xl p-6 shadow-2xl border border-white/10 relative overflow-hidden animate-float">
+            <div class="absolute -right-8 -top-8 w-24 h-24 rounded-full bg-blood-500/10 blur-xl"></div>
+            
+            <h3 class="text-xs uppercase tracking-wider font-extrabold text-blood-400 mb-4">Rule-Based Match Engine</h3>
+            
+            <div class="space-y-4">
+                <!-- Step 1 -->
+                <div class="flex items-center gap-3 p-3 bg-white/5 border border-white/5 rounded-2xl hover:border-white/10 transition-colors">
+                    <span class="text-xl">📍</span>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-200">Same City Matching</h4>
+                        <p class="text-[10px] text-gray-500 mt-0.5">Locks searches within 15 major Indian cities for zero matching failures.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex items-center gap-3 p-3 bg-white/5 border border-white/5 rounded-2xl hover:border-white/10 transition-colors">
+                    <span class="text-xl">⏳</span>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-200">90-Day Safety Interval</h4>
+                        <p class="text-[10px] text-gray-500 mt-0.5">Enforces medical cooldown protocols automatically on donor profiles.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex items-center gap-3 p-3 bg-white/5 border border-white/5 rounded-2xl hover:border-white/10 transition-colors">
+                    <span class="text-xl">🔒</span>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-200">Secure Admin Verification</h4>
+                        <p class="text-[10px] text-gray-500 mt-0.5">Donor phone numbers remain masked until requests are validated by Admins.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 glass border-t border-white/5 py-8 text-center text-gray-500 text-xs">
+        <p>&copy; 2026 BloodConnect. All rights reserved.</p>
+        <p class="mt-1 text-gray-600">Built securely using Java Servlets, JDBC, and REST APIs.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('login')
+                .then(res => res.json())
+                .then(data => {
+                    const navActions = document.getElementById('nav-actions');
+                    const ctaContainer = document.getElementById('cta-container');
+
+                    if (data.success) {
+                        let dashboardUrl = 'login.html';
+                        if (data.role === 'ADMIN') dashboardUrl = 'admin-dashboard.html';
+                        else if (data.role === 'DONOR') dashboardUrl = 'donor-dashboard.html';
+                        else if (data.role === 'REQUESTER') dashboardUrl = 'requester-dashboard.html';
+
+                        // Update navbar
+                        navActions.innerHTML = `
+                            <span class="text-xs text-gray-400 mr-2">Welcome, <strong class="text-white">${data.userName}</strong></span>
+                            <a href="${dashboardUrl}" class="text-xs font-semibold text-gray-300 hover:text-white transition-colors mr-2">Dashboard</a>
+                            <button id="logout-btn" class="px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200">Sign Out</button>
+                        `;
+
+                        // Add signout handler
+                        document.getElementById('logout-btn').addEventListener('click', () => {
+                            fetch('logout', { method: 'POST' })
+                                .then(res => res.json())
+                                .then(() => {
+                                    window.location.reload();
+                                });
+                        });
+
+                        // Update CTAs to redirect directly to dashboard
+                        ctaContainer.innerHTML = `
+                            <a href="${dashboardUrl}" class="px-6 py-3 bg-gradient-to-r from-blood-600 to-blood-700 hover:from-blood-500 hover:to-blood-600 text-center text-white font-semibold rounded-xl shadow-lg shadow-blood-600/30 hover:shadow-blood-500/40 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] text-sm">
+                                Go to Dashboard
+                            </a>
+                        `;
+                    } else {
+                        // Not logged in
+                        navActions.innerHTML = `
+                            <a href="login.html" id="login-nav-btn" class="text-xs font-semibold text-gray-300 hover:text-white transition-colors">Sign In</a>
+                            <a href="register.html" id="register-nav-btn" class="px-4 py-2 bg-gradient-to-r from-blood-600 to-blood-700 hover:from-blood-500 hover:to-blood-600 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200">Register Now</a>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error checking session status:', err);
+                    const navActions = document.getElementById('nav-actions');
+                    navActions.innerHTML = `
+                        <a href="login.html" id="login-nav-btn" class="text-xs font-semibold text-gray-300 hover:text-white transition-colors">Sign In</a>
+                        <a href="register.html" id="register-nav-btn" class="px-4 py-2 bg-gradient-to-r from-blood-600 to-blood-700 hover:from-blood-500 hover:to-blood-600 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200">Register Now</a>
+                    `;
+                });
+        });
+    </script>
+</body>
+</html>

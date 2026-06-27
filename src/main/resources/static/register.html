@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — BloodConnect</title>
+    <meta name="description" content="Register as a Donor or Requester on BloodConnect">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        blood: {
+                            50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca',
+                            300: '#fca5a5', 400: '#f87171', 500: '#ef4444',
+                            600: '#dc2626', 700: '#b91c1c', 800: '#991b1b',
+                            900: '#7f1d1d', 950: '#450a0a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-glow:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3); }
+    </style>
+</head>
+<body class="font-sans bg-gray-950 text-white min-h-screen flex items-center justify-center relative overflow-y-auto py-10">
+
+    <!-- Background decorations -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-blood-600/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-blood-800/20 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-lg px-6 py-10">
+        <!-- Back Button -->
+        <div class="mb-4">
+            <a href="index.html" class="inline-flex items-center gap-2 text-gray-400 hover:text-white text-xs font-medium transition-colors" id="back-home-btn">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                Back to Home
+            </a>
+        </div>
+
+        <!-- Logo / Brand -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blood-500 to-blood-700 rounded-2xl shadow-lg shadow-blood-500/30 mb-3 animate-float">
+                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Create Account</h1>
+            <p class="text-gray-400 mt-1 text-sm">Join BloodConnect as a Donor or Requester</p>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="glass rounded-2xl p-8 shadow-2xl">
+
+            <!-- Alert messages container -->
+            <div id="alert-container"></div>
+
+            <form class="space-y-4" id="register-form">
+
+                <!-- Full Name -->
+                <div>
+                    <label for="fullName" class="block text-sm font-medium text-gray-300 mb-1.5">Full Name</label>
+                    <input type="text" id="fullName" name="fullName"
+                           placeholder="John Doe"
+                           required
+                           class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none input-glow transition-all duration-200">
+                </div>
+
+                <!-- Email + Phone row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300 mb-1.5">Email</label>
+                        <input type="email" id="email" name="email"
+                               placeholder="you@example.com"
+                               required
+                               class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none input-glow transition-all duration-200">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-300 mb-1.5">Phone</label>
+                        <input type="tel" id="phone" name="phone"
+                               placeholder="9876543210"
+                               required
+                               class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none input-glow transition-all duration-200">
+                    </div>
+                </div>
+
+                <!-- Password + Confirm row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+                        <input type="password" id="password" name="password"
+                               placeholder="Min. 8 characters"
+                               required minlength="8"
+                               class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none input-glow transition-all duration-200">
+                    </div>
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-300 mb-1.5">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword"
+                               placeholder="Re-enter password"
+                               required
+                               class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none input-glow transition-all duration-200">
+                    </div>
+                </div>
+
+                <!-- Role Selector -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">I want to</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer" id="role-donor-label">
+                            <input type="radio" name="role" value="DONOR" id="role-donor" class="hidden peer" checked>
+                            <div class="peer-checked:bg-blood-600/20 peer-checked:border-blood-500 border border-white/10 rounded-xl p-4 text-center transition-all duration-200 hover:border-white/30">
+                                <div class="text-2xl mb-1">🩸</div>
+                                <div class="font-medium text-sm">Donate Blood</div>
+                                <div class="text-gray-500 text-xs mt-0.5">Register as Donor</div>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer" id="role-requester-label">
+                            <input type="radio" name="role" value="REQUESTER" id="role-requester" class="hidden peer">
+                            <div class="peer-checked:bg-blood-600/20 peer-checked:border-blood-500 border border-white/10 rounded-xl p-4 text-center transition-all duration-200 hover:border-white/30">
+                                <div class="text-2xl mb-1">🏥</div>
+                                <div class="font-medium text-sm">Request Blood</div>
+                                <div class="text-gray-500 text-xs mt-0.5">Register as Requester</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Donor-specific fields (hidden if REQUESTER selected) -->
+                <div id="donor-fields" class="space-y-4 transition-all duration-300">
+                    <div class="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Donor Information</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Blood Group -->
+                        <div>
+                            <label for="bloodGroup" class="block text-sm font-medium text-gray-300 mb-1.5">Blood Group</label>
+                            <select id="bloodGroup" name="bloodGroup"
+                                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none input-glow transition-all duration-200 appearance-none">
+                                <option value="" class="bg-gray-900">Select</option>
+                                <option value="A+" class="bg-gray-900">A+</option>
+                                <option value="A-" class="bg-gray-900">A-</option>
+                                <option value="B+" class="bg-gray-900">B+</option>
+                                <option value="B-" class="bg-gray-900">B-</option>
+                                <option value="AB+" class="bg-gray-900">AB+</option>
+                                <option value="AB-" class="bg-gray-900">AB-</option>
+                                <option value="O+" class="bg-gray-900">O+</option>
+                                <option value="O-" class="bg-gray-900">O-</option>
+                            </select>
+                        </div>
+
+                        <!-- City (fixed dropdown — dynamically populated) -->
+                        <div>
+                            <label for="city" class="block text-sm font-medium text-gray-300 mb-1.5">City</label>
+                            <select id="city" name="city"
+                                    class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none input-glow transition-all duration-200 appearance-none">
+                                <option value="" class="bg-gray-900">Select City</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" id="register-btn"
+                        class="w-full py-3 bg-gradient-to-r from-blood-600 to-blood-700 hover:from-blood-500 hover:to-blood-600 text-white font-semibold rounded-xl shadow-lg shadow-blood-600/30 hover:shadow-blood-500/40 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] mt-2">
+                    Create Account
+                </button>
+            </form>
+
+            <!-- Login link -->
+            <p class="text-center text-gray-400 text-sm mt-6">
+                Already have an account?
+                <a href="login.html" class="text-blood-400 hover:text-blood-300 font-medium transition-colors" id="login-link">
+                    Sign in
+                </a>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-gray-600 text-xs mt-8">
+            &copy; 2026 BloodConnect. Saving lives, one match at a time.
+        </p>
+    </div>
+
+    <!-- Client-side JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const donorFields = document.getElementById('donor-fields');
+            const roleDonor = document.getElementById('role-donor');
+            const roleRequester = document.getElementById('role-requester');
+            const citySelect = document.getElementById('city');
+            const form = document.getElementById('register-form');
+            const alertContainer = document.getElementById('alert-container');
+
+            // Parse URL parameters to check role recommendation
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('role') === 'REQUESTER') {
+                roleRequester.checked = true;
+            }
+
+            // Fetch cities list dynamically from servlet
+            fetch('register')
+                .then(res => res.json())
+                .then(cities => {
+                    cities.forEach(city => {
+                        const opt = document.createElement('option');
+                        opt.value = city;
+                        opt.textContent = city;
+                        opt.className = 'bg-gray-900';
+                        citySelect.appendChild(opt);
+                    });
+                })
+                .catch(err => console.error('Error fetching cities:', err));
+
+            function toggleDonorFields() {
+                if (roleRequester.checked) {
+                    donorFields.style.maxHeight = '0';
+                    donorFields.style.overflow = 'hidden';
+                    donorFields.style.opacity = '0';
+                    document.getElementById('bloodGroup').removeAttribute('required');
+                    document.getElementById('city').removeAttribute('required');
+                } else {
+                    donorFields.style.maxHeight = '500px';
+                    donorFields.style.overflow = 'visible';
+                    donorFields.style.opacity = '1';
+                    document.getElementById('bloodGroup').setAttribute('required', '');
+                    document.getElementById('city').setAttribute('required', '');
+                }
+            }
+
+            roleDonor.addEventListener('change', toggleDonorFields);
+            roleRequester.addEventListener('change', toggleDonorFields);
+
+            // Initialize on load
+            toggleDonorFields();
+
+            // Form Submit handler
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const role = document.querySelector('input[name="role"]:checked').value;
+                const bloodGroup = document.getElementById('bloodGroup').value;
+                const city = document.getElementById('city').value;
+
+                if (password !== confirmPassword) {
+                    alertContainer.innerHTML = `
+                        <div class="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl mb-4 text-sm" id="error-alert">
+                            Passwords do not match.
+                        </div>
+                    `;
+                    return;
+                }
+
+                const params = new URLSearchParams();
+                params.append('fullName', fullName);
+                params.append('email', email);
+                params.append('phone', phone);
+                params.append('password', password);
+                params.append('confirmPassword', confirmPassword);
+                params.append('role', role);
+                if (role === 'DONOR') {
+                    params.append('bloodGroup', bloodGroup);
+                    params.append('city', city);
+                }
+
+                fetch('register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                })
+                .then(res => {
+                    return res.json().then(data => {
+                        if (res.ok && data.success) {
+                            window.location.href = 'login.html?registered=true';
+                        } else {
+                            throw new Error(data.message || 'Registration failed.');
+                        }
+                    });
+                })
+                .catch(err => {
+                    alertContainer.innerHTML = `
+                        <div class="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl mb-4 text-sm" id="error-alert">
+                            ${err.message}
+                        </div>
+                    `;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
