@@ -115,7 +115,7 @@ In the decoupled setup, the client-side JavaScript communicates asynchronously w
 
 To maintain compatibility with local development environments and cloud platforms (such as Railway):
 *   **Variable Substitution**: Spring Boot checks for environment variables `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, and `MYSQLPASSWORD` inside `application.properties`.
-*   **Fallback Defaults**: If variables are missing, it falls back to connection details `localhost:3306/bloodconnect` with user `rorr` and password `admin` to align with the database settings specified by the user.
+*   **Fallback Defaults**: If variables are missing, it falls back to connection details `localhost:3306/bloodconnect` with user `root` and password `admin` to align with the database settings specified by the user.
 *   **Explicit Dialect Setting**: The Hibernate dialect is explicitly set to `org.hibernate.dialect.MySQL8Dialect`. This avoids connection-negotiation failures and ensures metadata query resolution on initial startup even if database start is delayed.
 
 ---
@@ -156,7 +156,7 @@ Tailwind CSS styles the application interface using a dark theme with modern gla
 
 The matching logic routes new blood requests to active, eligible donors. The search filter is implemented in `DonorProfileRepository` using native queries:
 
-### Core Matching Query:
+### Core Matching Search Query:
 ```sql
 SELECT d.* FROM donor_profiles d 
 JOIN users u ON d.donor_id = u.user_id 
@@ -170,6 +170,19 @@ WHERE d.blood_group = :bloodGroup
     2.  The city matches the request location (case-insensitive conversion via `LOWER`).
     3.  Availability status `is_available` is true.
     4.  The donor's last donation date is either `NULL` or more than 90 days in the past (calculated using MySQL `DATEDIFF` against the current date).
+
+### Matched Request and Donor Retrieval Query:
+This query joins the matches, users, and donor profiles tables to fetch complete details of matched donors for a request (used on requester and admin dashboards):
+```sql
+SELECT dm.match_id, dm.request_id, dm.donor_id, dm.status, dm.matched_at,
+       u.full_name AS donor_name, u.phone AS donor_phone,
+       d.blood_group AS donor_blood_group, d.city AS donor_city
+FROM donor_matches dm
+JOIN users u ON dm.donor_id = u.user_id
+JOIN donor_profiles d ON dm.donor_id = d.donor_id
+WHERE dm.request_id = :requestId
+ORDER BY dm.matched_at DESC
+```
 
 ---
 
@@ -372,7 +385,7 @@ DatabasePopulatorUtils.execute(populator, dataSource);
 
 ### Database Setup
 Ensure MySQL is running. The default local configuration matches:
-*   **Username**: `rorr`
+*   **Username**: `root`
 *   **Password**: `admin`
 *   **Database**: `bloodconnect`
 
